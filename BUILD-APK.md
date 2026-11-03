@@ -1,9 +1,39 @@
-# Build FUTOROW AI APK
+name: Build FUTOROW AI APK
 
-1. Upload the **contents** of this project folder to the root of your GitHub repository (not this ZIP file).
-2. Make sure the project includes `gradlew` and `gradle/wrapper/gradle-wrapper.properties`.
-3. Open the repository's **Actions** tab.
-4. Select **Build FUTOROW AI APK** and press **Run workflow** (or push to `main`).
-5. When the run succeeds, open it and download the `FUTOROW-AI-APK` artifact.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
 
-The workflow builds a debug APK. The demo UI is local/offline; real AI services are not connected yet.
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build debug APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FUTOROW-AI-APK
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
